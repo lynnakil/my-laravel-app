@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
-    // Laravel will default to 'users' table, so this line is optional
     protected $table = 'users';
 
     protected $fillable = [
@@ -44,5 +44,20 @@ class User extends Authenticatable
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'userID');
+    }
+
+    public function hasRole(string $type): bool
+    {
+        return optional($this->role)->type === $type;
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims(): array
+    {
+        return [];
     }
 }
